@@ -16,7 +16,10 @@ client = speech.SpeechClient()
 config = types.RecognitionConfig(
     encoding=enums.RecognitionConfig.AudioEncoding.FLAC,
     # sample_rate_hertz=16000,
-    language_code='en-US')
+    language_code='en-US',
+    enable_automatic_punctuation=True
+    enable_speaker_diarization=True,
+    diarization_speaker_count=3)
 
 # fetch audio
 # storage_client = storage.Client()
@@ -33,7 +36,7 @@ for name, job in audio.items():
   jobs[name] = client.long_running_recognize(config, job)
 
 while len(jobs) > 0:
-  time.sleep(1)
+  time.sleep(20)
   for name, job in jobs.items():
     if job.done() == False:
       print(name + ' progress: ' + str(job.metadata.progress_percent))
@@ -43,16 +46,10 @@ while len(jobs) > 0:
       jobs.pop(name)
 
 for name, result in output.items():
-  print(u'Transcript: {}'.format(result._result.results[0].alternatives[0].transcript))
-  print('Confidence: {}'.format(result._result.results[0].alternatives[0].confidence))
-
-
-# while operation.done() == False:
-#   if hasattr(operation.metadata, 'progress_percent'):
-#     print('Progress: ' + str(operation.metadata.progress_percent))
-#   else:
-#     print(operation.metadata)
-#   time.sleep(20)
+  file = open(name + '.txt','w')
+  file.write(result._result.results[0].alternatives[0].transcript)
+  file.close()
+  # print(name + ' transcript: ' + result._result.results[0].alternatives[0].transcript)
 
 
 

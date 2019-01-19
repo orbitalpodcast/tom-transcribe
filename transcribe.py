@@ -18,22 +18,26 @@ config = types.RecognitionConfig(
     # sample_rate_hertz=16000,
     language_code='en-US',
     enable_automatic_punctuation=True
-    enable_speaker_diarization=True,
-    diarization_speaker_count=3)
+    # enable_speaker_diarization=True,
+    # diarization_speaker_count=3
+    )
 
 # fetch audio
 # storage_client = storage.Client()
 # bucket = storage_client.get_bucket('tom-transcribe')
 # episodes = bucket.list_blobs()
 # audio = {"Brooklyn": types.RecognitionAudio(uri='gs://cloud-samples-tests/speech/brooklyn.flac')}
-audio = {"clipA": types.RecognitionAudio(uri='gs://tom-transcribe/clipA.flac'),
-         "clipB": types.RecognitionAudio(uri='gs://tom-transcribe/clipB.flac'),
-         "clipC": types.RecognitionAudio(uri='gs://tom-transcribe/clipC.flac')}
+audio = {
+         # "clipA": types.RecognitionAudio(uri='gs://tom-transcribe/clipA.flac'),
+         # "clipB": types.RecognitionAudio(uri='gs://tom-transcribe/clipB.flac'),
+         # "clipC": types.RecognitionAudio(uri='gs://tom-transcribe/clipC.flac'),
+         "clipD": types.RecognitionAudio(uri='gs://tom-transcribe/clipD.flac')}
 jobs = {}
 output = {}
 
 for name, job in audio.items():
   jobs[name] = client.long_running_recognize(config, job)
+  print(name + " transcription request submitted.")
 
 while len(jobs) > 0:
   time.sleep(20)
@@ -47,9 +51,9 @@ while len(jobs) > 0:
 
 for name, result in output.items():
   file = open(name + '.txt','w')
-  file.write(result._result.results[0].alternatives[0].transcript)
+  for paragraph in range(0,len(result._result.results)):
+    file.write(result._result.results[paragraph].alternatives[0].transcript)
   file.close()
-  # print(name + ' transcript: ' + result._result.results[0].alternatives[0].transcript)
 
 
 

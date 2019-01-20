@@ -6,6 +6,7 @@ import os
 import time
 import inspect
 import praw
+from tqdm import tqdm
 
 # Maybe add async upload? https://cloud.google.com/appengine/docs/standard/python/datastore/async
 
@@ -32,28 +33,30 @@ wiki = reddit.subreddit('orbitalpodcast').wiki
 # episodes = bucket.list_blobs()
 # audio = {"Brooklyn": types.RecognitionAudio(uri='gs://cloud-samples-tests/speech/brooklyn.flac')}
 audio = {
-         "Episode-192": types.RecognitionAudio(uri='gs://tom-transcribe/clipA.flac')}
+         # "clipA": types.RecognitionAudio(uri='gs://tom-transcribe/clipA.flac')}
          # "clipB": types.RecognitionAudio(uri='gs://tom-transcribe/clipB.flac'),
          # "clipC": types.RecognitionAudio(uri='gs://tom-transcribe/clipC.flac'),
-         # "Episode-192": types.RecognitionAudio(uri='gs://tom-transcribe/Episode-192.flac')}
+         "Episode-192": types.RecognitionAudio(uri='gs://tom-transcribe/Episode-192.flac')}
 jobs = {}
 output = {}
+pbars = {}
 
 # Make a new Speech job for every clip in the audio dict
 for name, job in audio.items():
   jobs[name] = client.long_running_recognize(config, job)
-  print(name + " transcription request submitted.")
+  # print(name + " transcription request submitted.")
+  pbars[name] = tqdm(total=100, desc=name)
 
-# Wait until the jobs are done, put their results in the output dict, and update the user on their progress
+# Wait until the jobs are done, update progress bars, and finally put their results in the output dict.
 while len(jobs) > 0:
   time.sleep(20)
   for name, job in jobs.items():
     if job.done() == False:
-      print(name + ' progress: ' + str(job.metadata.progress_percent))
+      pbars[name].update(job.metadata.progress_percent)
     else:
-      print(name + ' is done!')
       output[name] = job
       jobs.pop(name)
+      pbars[name].close()
 
 # Process the results in the output dict
 for name, result in output.items():

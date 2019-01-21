@@ -12,6 +12,7 @@
   * [your Reddit credentials](https://github.com/reddit-archive/reddit/wiki/OAuth2-Quick-Start-Example#first-steps)
     * This includes the name of the subreddit whose wiki you want your transcriptions uploaded to
   * your Google credentials [(this quickstart is handy!)](https://cloud.google.com/storage/docs/quickstart-gsutil)
+* Update the template.txt file. This will be prepended to your transcribed audio before it's uploaded to the wiki.
 
 ## Usage
 

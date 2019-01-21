@@ -20,7 +20,7 @@ config.read('praw.ini')
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = config.get('google', 'application_credentials')
 client = speech.SpeechClient()
-config = types.RecognitionConfig(
+speech_config = types.RecognitionConfig(
     encoding=enums.RecognitionConfig.AudioEncoding.FLAC,
     # sample_rate_hertz=16000,
     language_code='en-US',
@@ -31,7 +31,8 @@ config = types.RecognitionConfig(
 
 # Prepare to use Reddit
 reddit = praw.Reddit('reddit')
-wiki = reddit.subreddit(subreddit).wiki
+my_sub = config.get('reddit', 'subreddit')
+wiki = reddit.subreddit(my_sub).wiki
 
 
 # fetch audio
@@ -45,11 +46,9 @@ jobs = {}
 output = {}
 pbars = {}
 
-import pdb; pdb.set_trace()
-
 # Make a new Speech job for every clip in the audio dict
 for name, job in audio.items():
-  jobs[name] = client.long_running_recognize(config, job)
+  jobs[name] = client.long_running_recognize(speech_config, job)
   # print(name + " transcription request submitted.")
   pbars[name] = tqdm(total=100, desc=name)
 
@@ -68,7 +67,7 @@ while len(jobs) > 0:
 for name, result in output.items():
   # parse some handy names for later
   backup_file = 'backup/' + name + '.txt'
-  wiki_address = 'episodes/' + name.rsplit('.')[1]
+  wiki_address = 'episodes/' + name.rsplit('-')[1]
   # open a local backup file
   if not os.path.isdir('backup'):
     os.mkdir('backup')

@@ -1,6 +1,10 @@
-[bot1]
-client_id=##############
-client_secret=###########################
-user_agent=OSX:client_id:0.1 (by /u/username!)
-username=your_reddit_username
-password=your_reddit_password
+[reddit]
+client_id=<14 characters>
+client_secret=<27 characters>
+user_agent=OSX:<client_id>:0.1 (by /u/username!)
+username=<username of an account listed as a developer for the app>
+password=<that account's password>
+
+[google]
+application_credentials=<credential file>.json
+bucket=<bucket name, not bucket URI>

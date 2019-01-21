@@ -1,2 +1,25 @@
-## Reddit bot
-You can use this bot to automatically upload transcriptions to your Subreddit's wiki. It uses the Reddit library [PRAW](https://praw.readthedocs.io/en/latest/getting_started/quick_start.html). One thing to note is that you'll have to set up app credentials (there are good directions in the quickstart link above). You can either chose to have the bot run through your personal account or through it's own dummy account. Whichever account it uses is, practically speaking, not going to be able to use TFA. If you really, really want to use a TFA enabled account, let me know and I can add that capability later (or you can [just update your .ini file every time you use the program.](https://praw.readthedocs.io/en/latest/getting_started/authentication.html#two-factor-authentication))
+## Dependencies
+
+* Python 2.7
+* [Google Cloud SDK](https://cloud.google.com/sdk/docs/)
+* [Google Cloud Python library](https://cloud.google.com/apis/docs/cloud-client-libraries)
+* [PRAW](https://praw.readthedocs.io/en/latest/getting_started/installation.html)
+* [TQDM](https://github.com/tqdm/tqdm#latest-pypi-stable-release)
+
+## Configuration
+* Config settings are all stored in a .ini file. Since PRAW already looks for one, we're just going to hitchhike and use a different section in theirs. This saves us having a second .ini file.
+* Update praw.ini with
+  * [your Reddit credentials](https://github.com/reddit-archive/reddit/wiki/OAuth2-Quick-Start-Example#first-steps)
+    * This includes the name of the subreddit whose wiki you want your transcriptions uploaded to
+  * your Google credentials [(this quickstart is handy!)](https://cloud.google.com/storage/docs/quickstart-gsutil)
+
+## Usage
+
+* Upload your audio files to your Google Cloud Storage bucket. Anything in there will get transcribed, so delete previously transcribed files. In the future, we'll check for wiki pages and ignore extant episodes.
+* Run transcribe.py.
+* Enjoy the progress bars.
+* When it's complete, a local backup will be saved in the same directory the .py file was in, in a folder called backup.
+
+## Reddit credentials
+
+* You can either chose to have the bot run through your personal Reddit account or through it's own dummy account. Whichever account it uses, practically speaking, is not going to be able to use TFA. If you really, really want to use a TFA enabled account, let me know and I can add that capability later (or you can [just update your .ini file every time you use the program.](https://praw.readthedocs.io/en/latest/getting_started/authentication.html#two-factor-authentication))

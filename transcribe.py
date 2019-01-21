@@ -7,11 +7,18 @@ import time
 import inspect
 import praw
 from tqdm import tqdm
+import ConfigParser
 
 # Maybe add async upload? https://cloud.google.com/appengine/docs/standard/python/datastore/async
 
+# Load config file. Note that praw loads the same file on its own to initialize itself.
+config = ConfigParser.ConfigParser()
+config.read('praw.ini')
+
+
 # Prepare to use speech
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'My First Project-5af21f8ba1d9.json'
+
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = config.get('google', 'application_credentials')
 client = speech.SpeechClient()
 config = types.RecognitionConfig(
     encoding=enums.RecognitionConfig.AudioEncoding.FLAC,
@@ -23,23 +30,22 @@ config = types.RecognitionConfig(
     )
 
 # Prepare to use Reddit
-reddit = praw.Reddit('bot1')
-wiki = reddit.subreddit('orbitalpodcast').wiki
+reddit = praw.Reddit('reddit')
+wiki = reddit.subreddit(subreddit).wiki
 
 
 # fetch audio
-# storage_client = storage.Client()
-# bucket = storage_client.get_bucket('tom-transcribe')
-# episodes = bucket.list_blobs()
-# audio = {"Brooklyn": types.RecognitionAudio(uri='gs://cloud-samples-tests/speech/brooklyn.flac')}
-audio = {
-         # "clipA": types.RecognitionAudio(uri='gs://tom-transcribe/clipA.flac')}
-         # "clipB": types.RecognitionAudio(uri='gs://tom-transcribe/clipB.flac'),
-         # "clipC": types.RecognitionAudio(uri='gs://tom-transcribe/clipC.flac'),
-         "Episode-192": types.RecognitionAudio(uri='gs://tom-transcribe/Episode-192.flac')}
+storage_client = storage.Client()
+bucket = storage_client.get_bucket(config.get('google', 'bucket'))
+audio = {}
+for blob in bucket.list_blobs():
+  squished_URI = 'gs://{}/{}'.format(config.get('google', 'bucket'), blob.name)
+  audio[str(blob.name.rsplit('.')[0])] = types.RecognitionAudio(uri=squished_URI)
 jobs = {}
 output = {}
 pbars = {}
+
+import pdb; pdb.set_trace()
 
 # Make a new Speech job for every clip in the audio dict
 for name, job in audio.items():
@@ -62,7 +68,7 @@ while len(jobs) > 0:
 for name, result in output.items():
   # parse some handy names for later
   backup_file = 'backup/' + name + '.txt'
-  wiki_address = 'episodes/' + name[8:11]
+  wiki_address = 'episodes/' + name.rsplit('.')[1]
   # open a local backup file
   if not os.path.isdir('backup'):
     os.mkdir('backup')
@@ -79,7 +85,7 @@ for name, result in output.items():
     template.close()
   else:
     transcript_with_template = transcript
-  wiki[wiki_address].edit(transcript_with_template, reason='Added Raw Transcript')
+  wiki[wiki_address].edit(transcript_with_template, reason='Init')
   transcript.close()
 
 

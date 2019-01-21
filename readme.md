@@ -15,7 +15,10 @@
 
 ## Usage
 
-* Upload your audio files to your Google Cloud Storage bucket. Anything in there will get transcribed, so delete previously transcribed files. In the future, we'll check for wiki pages and ignore extant episodes.
+* Upload your audio files to your Google Cloud Storage bucket.
+  * File names must be in the format episode-###.flac.
+  * Files must be mono flac files. This hopefully won't be a requirement in the future.
+  * Anything in there will get transcribed, so delete previously transcribed files. In the future, we'll check for wiki pages and ignore extant episodes.
 * Run transcribe.py.
 * Enjoy the progress bars.
 * When it's complete, a local backup will be saved in the same directory the .py file was in, in a folder called backup.
